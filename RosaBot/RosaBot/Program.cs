@@ -51,9 +51,7 @@ namespace RosaBot
                 await Task.Delay(-1);
             }
             catch (Exception)
-            {
-                throw;
-            }
+            {}
         }
 
         // Caso de alguma execeção na execução do bot exibe no console
@@ -91,6 +89,9 @@ namespace RosaBot
         {
             try
             {
+                if(message.Content.Length < 2)
+                    return;
+
                 //verifica se a mensagem contém o caractere de ativação do bot "@}"
                 string botScapeCharacter = message.Content.Substring(0, 2);
 
