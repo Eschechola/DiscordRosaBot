@@ -1,9 +1,7 @@
 ﻿using Refit;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using RosaBot.Commands.Entities;
+using RosaBot.Domain.Entities;
 
-namespace RosaBot.Commands.Interfaces.Clients
+namespace RosaBot.Infrastructure.ExternalServices.Interfaces.Clients
 {
     public interface IQuotationClient
     {
