@@ -1,44 +1,32 @@
-﻿using Discord.WebSocket;
+﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using RosaBot.Application.Events;
-using RosaBot.IoC.Provider;
-using System;
+using RosaBot.Application.Worker;
+using RosaBot.IoC.Dependencies;
 
 namespace RosaBot
 {
-    internal class Program
+    class Program
     {
-        private static readonly DiscordSocketClient _client;
-        private static readonly BotEvents _events;
-
-        static Program()
-        {
-            var serviceProvider = ServicesProvider.GetServiceProvider();
-
-            _client = serviceProvider.GetService<DiscordSocketClient>();
-            _events = new BotEvents(_client);
-
-            _client.Log += _events.LogAsync;
-            _client.Ready += _events.ReadyAsync;
-            _client.UserJoined += _events.JoinedUser;
-            _client.MessageReceived += _events.MessageReceivedAsync;
-        }
-
         static void Main(string[] args)
         {
-            while (true)
-            {
-                try
+            Host.CreateDefaultBuilder()
+                .ConfigureServices(services => 
                 {
-                    _events.StartAsync()
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
-            }
+                    services
+                    .AddHostedService<BotWorker>()
+                    .AddScoped<BotEvents>()
+                    .AddDiscordClient()
+                    .AddServices()
+                    .AddMediatR(typeof(Program))
+                    .AddMediatorHandler()
+                    .AddMediatorCustomHandlers();
+                })
+                .Build()
+                .RunAsync()
+                .GetAwaiter()
+                .GetResult();
         }
     }
 }

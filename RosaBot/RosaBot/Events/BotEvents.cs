@@ -1,11 +1,8 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RosaBot.Application.Factory;
-using RosaBot.Commands.Styles;
-using RosaBot.IoC.Provider;
+using RosaBot.Services.Interfaces;
 using RosaBot.Shared.Messages;
 using System;
 using System.Threading.Tasks;
@@ -14,17 +11,21 @@ namespace RosaBot.Application.Events
 {
     public class BotEvents
     {
+        private readonly ICommandService _commandService;
         private readonly DiscordSocketClient _client;
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
 
-        public BotEvents(DiscordSocketClient client)
+        public BotEvents(
+            DiscordSocketClient client,
+            IConfiguration configuration,
+            ILogger<BotEvents> logger, 
+            ICommandService commandService)
         {
-            var serviceProvider = ServicesProvider.GetServiceProvider();
-
             _client = client;
-            _configuration = serviceProvider.GetService<IConfiguration>();
-            _logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger<BotEvents>();
+            _configuration = configuration;
+            _logger = logger;
+            _commandService = commandService;
         }
 
         public async Task StartAsync()
@@ -82,15 +83,14 @@ namespace RosaBot.Application.Events
                     return;
 
                 _logger.LogInformation("Message" + message.Content + "\nReceived from " + message.Author + "\nIn channel " + message.Channel);
-                var commandValue = GetCommandFromSocketMessage(message);
-                var commandParammeter = GetParammeterFromSocketMessage(message);
-                var commandObject = BotCommandFactory.GetCommand(commandValue);
+                var command = GetCommandFromSocketMessage(message);
+                var parammeter = GetParammeterFromSocketMessage(message);
 
-                _logger.LogInformation("Executing command: " + commandObject.ToString());
-                string commandResult = await commandObject.ResultAsync(commandParammeter);
+                _logger.LogInformation("Executing command...");
+                string result = await _commandService.GetCommandResponseAsync(command, parammeter);
 
-                _logger.LogInformation("Sending message to server with command result\n" + commandResult);
-                await message.Channel.SendMessageAsync(TextStyle.BlockedText(commandResult));
+                _logger.LogInformation("Sending message to server with command result\n" + result);
+                await message.Channel.SendMessageAsync(result);
             }
             catch (Exception ex)
             {
