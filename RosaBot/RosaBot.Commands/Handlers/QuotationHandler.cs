@@ -1,42 +1,47 @@
 ﻿using Refit;
 using System;
 using System.Threading.Tasks;
-using RosaBot.Commands.Entities;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using RosaBot.Commands.Interfaces.Clients;
 using System.Linq;
 using RosaBot.Shared.Messages;
-using RosaBot.Commands.Interfaces.Commands;
 using System.Globalization;
+using MediatR;
+using RosaBot.Commands.Requests;
+using System.Threading;
+using RosaBot.Domain.Entities;
+using RosaBot.Infrastructure.ExternalServices.Interfaces.Clients;
 
-namespace RosaBot.Commands.Commands
+namespace RosaBot.Commands.Handlers
 {
-    public class QuotationCommand : Command, IQuotationCommand
+    public class QuotationHandler : IRequestHandler<GetQuotationRequest, string>
     {
         private readonly IQuotationClient _quotationClient;
         private readonly IConfiguration _configuration;
         private readonly string _apiUrl;
 
-        public QuotationCommand(IConfiguration configuration)
+        public QuotationHandler(IConfiguration configuration)
         {
             _configuration = configuration;
             _apiUrl = _configuration["APIs:Quotation"];
             _quotationClient = RestService.For<IQuotationClient>(_apiUrl);
         }
 
-        public override async Task<string> ResultAsync(string commandValue)
-        {   
-            if (string.IsNullOrEmpty(commandValue))
+        public async Task<string> Handle(GetQuotationRequest request, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(request.Parammeter))
                 return BotMessages.QuotationInvalidMessage();
 
-            string currency = commandValue;
-            var quotation = await GetQuotationByCurrency(currency);
+            string currency = request.Parammeter;
+            var quotation = await GetQuotationByCurrencyAsync(currency);
 
-            return BotMessages.QuotationResultMessage(Convert.ToDouble(quotation.High, new CultureInfo("en-US")), _apiUrl, DateTime.Now); 
+            return BotMessages.QuotationResultMessage(
+                Convert.ToDouble(quotation.High, new CultureInfo("en-US")),
+                _apiUrl,
+                DateTime.Now);
         }
 
-        private async Task<Quotation> GetQuotationByCurrency(string currency)
+        private async Task<Quotation> GetQuotationByCurrencyAsync(string currency)
         {
             List<Quotation> quotations;
 

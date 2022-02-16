@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -6,11 +6,14 @@
 
   <ItemGroup>
     <PackageReference Include="EscNet" Version="6.0.1" />
+    <PackageReference Include="MediatR" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
     <PackageReference Include="refit" Version="6.3.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RosaBot.Domain\RosaBot.Domain.csproj" />
+    <ProjectReference Include="..\RosaBot.Infrastructure.ExternalServices\RosaBot.Infrastructure.ExternalServices.csproj" />
     <ProjectReference Include="..\RosaBot.Shared\RosaBot.Shared.csproj" />
   </ItemGroup>
 
