@@ -1,4 +1,4 @@
-﻿namespace RosaBot.Commands.Models
+﻿namespace RosaBot.Commands.Entities
 {
     public class Quotation
     {
@@ -8,13 +8,13 @@
 
         public string Name { get; set; }
 
-        public double High { get; set; }
+        public string High { get; set; }
 
-        public double Low { get; set; }
+        public string Low { get; set; }
 
-        public double Ask { get; set; }
+        public string Ask { get; set; }
 
-        public double Bid { get; set; }
+        public string Bid { get; set; }
 
         public string VarBid { get; set; }
 

@@ -1,7 +1,10 @@
-﻿namespace RosaBot.Commands
+﻿using RosaBot.Commands.Interfaces.Commands;
+using System.Threading.Tasks;
+
+namespace RosaBot.Commands
 {
-    public abstract class Command 
+    public abstract class Command : ICommand
     {
-        public abstract string ReturnMessage(string commandValue);
+        public abstract Task<string> ResultAsync(string commandValue);
     }
 }

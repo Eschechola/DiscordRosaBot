@@ -1,11 +1,11 @@
 ﻿using Refit;
 using System.Threading.Tasks;
-using RosaBot.Commands.Models;
 using System.Collections.Generic;
+using RosaBot.Commands.Entities;
 
-namespace RosaBot.Commands.Interfaces.QuotationInterfaces
+namespace RosaBot.Commands.Interfaces.Clients
 {
-    public interface IQuotationService
+    public interface IQuotationClient
     {
         [Get("/json/usd")]
         Task<List<Quotation>> GetDolarQuotationServiceAsync();

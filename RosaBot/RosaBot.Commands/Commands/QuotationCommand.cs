@@ -1,68 +1,76 @@
 ﻿using Refit;
 using System;
-using ESCHENet.Configuration;
 using System.Threading.Tasks;
-using RosaBot.Commands.Models;
+using RosaBot.Commands.Entities;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using RosaBot.Commands.Interfaces.QuotationInterfaces;
+using RosaBot.Commands.Interfaces.Clients;
+using System.Linq;
+using RosaBot.Shared.Messages;
+using RosaBot.Commands.Interfaces.Commands;
+using System.Globalization;
 
 namespace RosaBot.Commands.Commands
 {
-    public class QuotationCommand : Command
+    public class QuotationCommand : Command, IQuotationCommand
     {
-        private readonly IQuotationService _quotationService;
+        private readonly IQuotationClient _quotationClient;
         private readonly IConfiguration _configuration;
         private readonly string _apiUrl;
 
-        public QuotationCommand()
+        public QuotationCommand(IConfiguration configuration)
         {
-            _configuration = SettingsInjection.Configuration;
-            _apiUrl = _configuration["API:Quotation"];
-            _quotationService = RestService.For<IQuotationService>(_apiUrl);
+            _configuration = configuration;
+            _apiUrl = _configuration["APIs:Quotation"];
+            _quotationClient = RestService.For<IQuotationClient>(_apiUrl);
         }
 
-        public override string ReturnMessage(string commandValue)
-        {
+        public override async Task<string> ResultAsync(string commandValue)
+        {   
             if (string.IsNullOrEmpty(commandValue))
-                return "Use @}cotaçao <moeda>";
+                return BotMessages.QuotationInvalidMessage();
 
-            var quotation = QuotationFactory(commandValue).Result[0];
+            string currency = commandValue;
+            var quotation = await GetQuotationByCurrency(currency);
 
-            var message = String.Format(
-                "A cotação dessa moeda infeliz está: R${0:0.00}\nFonte: {1}\nCotação do dia: {2}",
-                quotation.High,
-                _apiUrl,
-                DateTime.Now.ToString());
-
-            return message;
+            return BotMessages.QuotationResultMessage(Convert.ToDouble(quotation.High, new CultureInfo("en-US")), _apiUrl, DateTime.Now); 
         }
 
-        private async Task<List<Quotation>> QuotationFactory(string quotationCommand)
+        private async Task<Quotation> GetQuotationByCurrency(string currency)
         {
-            switch (quotationCommand.ToLower())
+            List<Quotation> quotations;
+
+            switch (currency.ToLower())
             {
                 case "dólar":
-                    return await _quotationService.GetDolarQuotationServiceAsync();
+                    quotations = await _quotationClient.GetDolarQuotationServiceAsync();
+                    break;
 
                 case "dolar":
-                    return await _quotationService.GetDolarQuotationServiceAsync();
+                    quotations = await _quotationClient.GetDolarQuotationServiceAsync();
+                    break;
 
                 case "euro":
-                    return await _quotationService.GetEuroQuotationServiceAsync();
+                    quotations = await _quotationClient.GetEuroQuotationServiceAsync();
+                    break;
 
                 case "libra":
-                    return await _quotationService.GetLibrasEsterlinasQuotationServiceAsync();
+                    quotations = await _quotationClient.GetLibrasEsterlinasQuotationServiceAsync();
+                    break;
 
                 case "pesos":
-                    return await _quotationService.GetPesosArgentinosQuotationServiceAsync();
+                    quotations = await _quotationClient.GetPesosArgentinosQuotationServiceAsync();
+                    break;
 
                 case "bitcoin":
-                    return await _quotationService.GetBitcoinQuotationServiceAsync();
+                    quotations = await _quotationClient.GetBitcoinQuotationServiceAsync();
+                    break;
 
                 default:
                     throw new Exception();
             }
+
+            return quotations.FirstOrDefault();
         }
     }
 }
