@@ -1,4 +1,4 @@
-﻿using Refit;
+using Refit;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -69,6 +69,9 @@ namespace RosaBot.Commands.Handlers
 
                 case "bitcoin":
                     quotations = await _quotationClient.GetBitcoinQuotationServiceAsync();
+                    
+                    string highQuotation = quotations.FirstOrDefault().High.Replace(".", "");
+                    quotations[0].SetHighQuotation(highQuotation);
                     break;
 
                 default:

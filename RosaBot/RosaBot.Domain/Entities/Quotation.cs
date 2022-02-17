@@ -53,5 +53,8 @@
             CreateDate = createDate;
             PctChange = pctChange;
         }
+
+        public void SetHighQuotation(string high)
+            => High = high;
     }
 }
