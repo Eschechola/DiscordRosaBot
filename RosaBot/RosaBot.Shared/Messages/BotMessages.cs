@@ -20,8 +20,9 @@
         public static string QuotationInvalidMessage()
             => "Use @}cotaçao <moeda>";
 
-        public static string QuotationResultMessage(double quotation, string apiUrl, DateTime date)
-            => string.Format("A cotação dessa moeda infeliz está: R${0:0.00}\nFonte: {1}\nCotação do dia: {2}",
+        public static string QuotationResultMessage(string currencyName, double quotation, string apiUrl, DateTime date)
+            => string.Format("[{0}]\nA cotação dessa moeda infeliz está: R${1:0.00}\nFonte: {2}\nCotação do dia: {3}",
+                currencyName.ToUpper(),
                 quotation,
                 apiUrl,
                 date.ToString("dd/MM/yyyy hh:mm:ss") + " - Horário de Brasília");

@@ -1,4 +1,4 @@
-using Refit;
+﻿using Refit;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -36,6 +36,7 @@ namespace RosaBot.Commands.Handlers
             var quotation = await GetQuotationByCurrencyAsync(currency);
 
             return BotMessages.QuotationResultMessage(
+                currency,
                 Convert.ToDouble(quotation.High, new CultureInfo("en-US")),
                 _apiUrl,
                 DateTime.Now);
