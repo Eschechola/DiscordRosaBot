@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RosaBot.Application.Events;
@@ -11,7 +12,11 @@ namespace RosaBot
     {
         static void Main(string[] args)
         {
-            Host.CreateDefaultBuilder()
+            Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(configuration =>
+                {
+                    configuration.AddUserSecrets<Program>().Build();
+                })
                 .ConfigureServices(services => 
                 {
                     services
